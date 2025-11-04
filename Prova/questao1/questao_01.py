@@ -5,9 +5,7 @@ menor_nota = 11.0
 aluno_maior_nota = ""
 aluno_menor_nota = ""
 
-ARQUIVO_DADOS = "dados_alunos.txt"
-
-with open(ARQUIVO_DADOS, 'r', encoding='utf-8') as arquivo:
+with open("dados_alunos.txt", 'r', encoding='utf-8') as arquivo:
 
     for linha in arquivo:
         linha = linha.strip()

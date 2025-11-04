@@ -48,8 +48,6 @@ def obter_nota_aluno(nome: str):
 
 #Questao 4
 
-
-
 @app.get("/alunos")
 def listar_alunos():
     global alunos_df
