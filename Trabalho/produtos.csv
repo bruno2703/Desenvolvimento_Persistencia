@@ -1,0 +1,35 @@
+id,nome,categoria,preco
+1,Teclado Mecânico PRO,Periférico,550.0
+2,Mouse Sem Fio Vertical,Periférico,180.5
+3,"Monitor Ultrawide 34""",Monitor,2100.0
+4,Webcam 4K,Vídeo,450.0
+5,Microfone Condensador,Áudio,620.0
+6,Gabinete Mid Tower,Componentes,300.0
+7,Memória RAM 16GB,Componentes,280.0
+8,Placa de Vídeo RTX 3060,Componentes,1800.0
+9,SSD NVMe 1TB,Armazenamento,420.0
+10,HD Externo 4TB,Armazenamento,750.0
+11,Fonte 650W Bronze,Componentes,330.0
+12,Processador Ryzen 5,Componentes,890.0
+13,Placa Mãe B550,Componentes,510.0
+14,Cadeira Gamer Ergonômica,Móveis,950.0
+15,Mesa Ajustável,Móveis,1200.0
+16,Headset Bluetooth,Áudio,250.0
+17,Roteador Wi-Fi 6,Rede,380.0
+18,Cabo HDMI 2.1,Acessórios,55.0
+19,Adaptador USB-C,Acessórios,40.0
+20,Mousepad Grande RGB,Periférico,110.0
+21,Filtro de Linha 8 Tomadas,Acessórios,75.0
+22,Webcam 1080p Básica,Vídeo,150.0
+23,Caixa de Som Stereo,Áudio,140.0
+24,Teclado de Membrana,Periférico,85.0
+25,Bateria Portátil 20000mAh,Acessórios,160.0
+26,Pen Drive 128GB,Armazenamento,90.0
+27,"Monitor 24"" FHD",Monitor,780.0
+28,Kit Limpeza PC,Acessórios,35.0
+29,Controlador ARGB,Componentes,60.0
+30,Cooler CPU Torre,Componentes,190.0
+31,Hub USB 3.0,Acessórios,45.0
+32,Suporte Monitor,Móveis,130.0
+33,Luminária LED Mesa,Móveis,70.0
+34,SSD 4TB,Armazenamento,1100.0

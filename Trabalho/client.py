@@ -1,4 +1,5 @@
 import httpx
+import json
 
 BASE_URL = "http://127.0.0.1:8000"
 
@@ -7,12 +8,12 @@ def criar_produto(produto):
         f"{BASE_URL}/produtos",
         json = {"nome":produto.get("nome"),"categoria":produto.get("categoria"),"preco":produto.get("preco")}
     )
-    return resp
+    print(resp.json())
 
 def listar_produtos():
     resp = httpx.get(f"{BASE_URL}/produtos")
     print("\n--- LISTA ATUAL DE PRODUTOS ---")
-    print(resp.json())
+    print(json.dumps(resp.json(), indent=2, ensure_ascii=False))
 
 def obter_produto(id):
     resp = httpx.get(f"{BASE_URL}/produtos/{id}")
@@ -35,24 +36,54 @@ def apagar_produto(id):
     print(f"\n--- REMOÇÃO ID {id} ---")
     print(resp.json())
 
+def obter_media_precos():
+    resp = httpx.get(f"{BASE_URL}/produtos/analise/media-precos")
+    print("\n--- ANÁLISE: Média de Preços ---")
+    print(resp.json())
+
+def obter_maior_preco():
+    resp = httpx.get(f"{BASE_URL}/produtos/analise/maior-preco")
+    print("\n--- ANÁLISE: Produto Mais Caro ---")
+    print(resp.json())
+
+def obter_menor_preco():
+    resp = httpx.get(f"{BASE_URL}/produtos/analise/menor-preco")
+    print("\n--- ANÁLISE: Produto Mais Barato ---")
+    print(resp.json())
+
+def obter_acima_media():
+    resp = httpx.get(f"{BASE_URL}/produtos/analise/acima-media")
+    print("\n--- ANÁLISE: Produtos Acima da Média ---")
+    print(json.dumps(resp.json(), indent=2, ensure_ascii=False))
+
+def obter_abaixo_media():
+    resp = httpx.get(f"{BASE_URL}/produtos/analise/abaixo-media")
+    print("\n--- ANÁLISE: Produtos Abaixo da Média ---")
+    print(json.dumps(resp.json(), indent=2, ensure_ascii=False))
+
 
 if __name__ == "__main__":
     
     # 1. Criação (POST)
-    criar_produto({"nome":"Webcam HD", "categoria": "Vídeo", "preco": 180.90})
+    #criar_produto({"nome":"SSD 8TB", "categoria": "Armazenamento", "preco": 1300.00})
     
     # 2. Listagem (GET)
     listar_produtos()
     
-    # 3. Atualização (PUT) - Atualiza o ID 2 (Teclado)
-    atualizar_produto(2, {"nome":"Teclado Mecânico PRO", "categoria": "Periférico", "preco": 400.00})
+    # 3. Teste dos Serviços de Análise
+    obter_media_precos()
+    obter_maior_preco()
+    obter_menor_preco()
+    obter_acima_media()
+    obter_abaixo_media()
     
-    # 4. Deleção (DELETE) - Remove o ID 1 (Mouse Óptico)
-    apagar_produto(1)
+    # 4. Atualização (PUT)
+    # atualizar_produto(2, {"nome":"Teclado Mecânico PRO (Editado)", "categoria": "Periférico", "preco": 400.00})
     
-    # 5. Busca por ID (GET {id})
+    # 5. Deleção (DELETE)
+    # apagar_produto(3)
+    
+    # 6. Busca por ID (GET {id})
     obter_produto(2)
-    obter_produto(100) # Testa erro 404
+    obter_produto(9999) # Testa erro 404
     
-    # 6. Listagem Final
-    listar_produtos()

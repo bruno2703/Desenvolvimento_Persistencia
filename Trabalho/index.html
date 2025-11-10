@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente API de Produtos</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 20px; background-color: #f9f9f9; }
+
+        .img-banner {
+            width: 100%; 
+            height: 180px; 
+            object-fit: cover; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+        }
+
+        h1, h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        button { padding: 8px 12px; font-size: 14px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; margin: 5px 2px; }
+        button:hover { background-color: #0056b3; }
+        button.delete { background-color: #dc3545; }
+        button.delete:hover { background-color: #c82333; }
+        .container { max-width: 900px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        form { background-color: #f4f4f4; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        input[type="text"], input[type="number"] { width: 95%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        label { font-weight: bold; margin-bottom: 5px; display: block; }
+        pre { background-color: #eee; padding: 10px; border: 1px solid #ccc; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <img src="loja.jpg" alt="Banner da Loja" class="img-banner">
+
+        <h1>Dashboard de Produtos</h1>
+
+        <h2>Criar Novo Produto</h2>
+        <form id="form-criar">
+            <label for="nome-criar">Nome:</label>
+            <input type="text" id="nome-criar" required>
+            
+            <label for="categoria-criar">Categoria:</label>
+            <input type="text" id="categoria-criar" required>
+            
+            <label for="preco-criar">Preço:</label>
+            <input type="number" step="0.01" id="preco-criar" required>
+            
+            <button type="submit">Criar Produto</button>
+        </form>
+
+        <h2>Atualizar Produto (por ID)</h2>
+        <form id="form-atualizar">
+            <label for="id-atualizar">ID do Produto:</label>
+            <input type="number" id="id-atualizar" required>
+
+            <label for="nome-atualizar">Novo Nome:</label>
+            <input type="text" id="nome-atualizar" required>
+            
+            <label for="categoria-atualizar">Nova Categoria:</label>
+            <input type="text" id="categoria-atualizar" required>
+            
+            <label for="preco-atualizar">Novo Preço:</label>
+            <input type="number" step="0.01" id="preco-atualizar" required>
+            
+            <button type="submit">Atualizar Produto</button>
+        </form>
+
+        <h2>Apagar Produto (por ID)</h2>
+        <form id="form-apagar">
+            <label for="id-apagar">ID do Produto:</label>
+            <input type="number" id="id-apagar" required>
+            <button type="submit" class="delete">Apagar Produto</button>
+        </form>
+
+        <h2>Análise de Dados</h2>
+        <button id="btnMedia">Média de Preços</button>
+        <button id="btnMaior">Produto Mais Caro</button>
+        <button id="btnMenor">Produto Mais Barato</button>
+        <button id="btnAcima">Acima da Média</button>
+        <button id="btnAbaixo">Abaixo da Média</button>
+
+        <h2>Resposta da API</h2>
+        <pre id="api-response">Respostas das ações aparecerão aqui...</pre>
+
+        <h2>Lista de Produtos</h2>
+        <button id="btnCarregar">Carregar/Atualizar Lista</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Categoria</th>
+                    <th>Preço (R$)</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-produtos-corpo">
+                <tr><td colspan="4">Clique em "Carregar" para ver os dados...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8000";
+        const tbody = document.getElementById("tabela-produtos-corpo");
+        const responseLog = document.getElementById("api-response");
+
+        // --- FUNÇÕES HELPER ---
+        // Função para mostrar a resposta na tela
+        function mostrarResposta(data) {
+            responseLog.textContent = JSON.stringify(data, null, 2); // Formata o JSON
+        }
+        
+        // Função para formatar moeda
+        const formatarMoeda = (valor) => {
+            return parseFloat(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        };
+
+        // --- FUNÇÃO PRINCIPAL DE LEITURA (GET) ---
+        async function carregarProdutos() {
+            tbody.innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
+            try {
+                const response = await fetch(`${API_URL}/produtos`);
+                const produtos = await response.json();
+                tbody.innerHTML = ""; // Limpa a tabela
+
+                if (produtos.length === 0) {
+                     tbody.innerHTML = '<tr><td colspan="4">Nenhum produto encontrado.</td></tr>';
+                     return;
+                }
+
+                produtos.forEach(produto => {
+                    const linha = document.createElement("tr");
+                    linha.innerHTML = `
+                        <td>${produto.id}</td>
+                        <td>${produto.nome}</td>
+                        <td>${produto.categoria}</td>
+                        <td>${formatarMoeda(produto.preco)}</td>
+                    `;
+                    tbody.appendChild(linha);
+                });
+            } catch (error) {
+                console.error("Erro ao carregar produtos:", error);
+                tbody.innerHTML = '<tr><td colspan="4" style="color: red;">Erro ao carregar a API.</td></tr>';
+            }
+        }
+        
+        // --- FUNÇÃO DE CRIAÇÃO (POST) ---
+        async function criarProduto(event) {
+            event.preventDefault(); // Impede o recarregamento da página
+            const data = {
+                nome: document.getElementById("nome-criar").value,
+                categoria: document.getElementById("categoria-criar").value,
+                preco: parseFloat(document.getElementById("preco-criar").value)
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/produtos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const resultado = await response.json();
+                mostrarResposta(resultado);
+                carregarProdutos(); // Atualiza a tabela
+                document.getElementById("form-criar").reset(); // Limpa o formulário
+            } catch (error) {
+                mostrarResposta({ erro: "Falha ao criar produto", details: error.message });
+            }
+        }
+        
+        // --- FUNÇÃO DE ATUALIZAÇÃO (PUT) ---
+        async function atualizarProduto(event) {
+            event.preventDefault();
+            const id = document.getElementById("id-atualizar").value;
+            const data = {
+                nome: document.getElementById("nome-atualizar").value,
+                categoria: document.getElementById("categoria-atualizar").value,
+                preco: parseFloat(document.getElementById("preco-atualizar").value)
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/produtos/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const resultado = await response.json();
+                mostrarResposta(resultado);
+                carregarProdutos(); // Atualiza a tabela
+                document.getElementById("form-atualizar").reset();
+            } catch (error) {
+                mostrarResposta({ erro: `Falha ao atualizar produto ${id}`, details: error.message });
+            }
+        }
+
+        // --- FUNÇÃO DE DELEÇÃO (DELETE) ---
+        async function apagarProduto(event) {
+            event.preventDefault();
+            const id = document.getElementById("id-apagar").value;
+
+            if (!confirm(`Tem certeza que deseja apagar o produto ID: ${id}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/produtos/${id}`, {
+                    method: 'DELETE'
+                });
+                const resultado = await response.json();
+                mostrarResposta(resultado);
+                carregarProdutos(); // Atualiza a tabela
+                document.getElementById("form-apagar").reset();
+            } catch (error) {
+                mostrarResposta({ erro: `Falha ao apagar produto ${id}`, details: error.message });
+            }
+        }
+
+        // --- FUNÇÕES DE ANÁLISE (GET) ---
+        async function getAnalise(endpoint) {
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`);
+                const resultado = await response.json();
+                mostrarResposta(resultado);
+            } catch (error) {
+                mostrarResposta({ erro: `Falha ao buscar análise: ${endpoint}`, details: error.message });
+            }
+        }
+
+        // --- VINCULANDO OS BOTÕES (Event Listeners) ---
+        document.getElementById("btnCarregar").addEventListener("click", carregarProdutos);
+        document.getElementById("form-criar").addEventListener("submit", criarProduto);
+        document.getElementById("form-atualizar").addEventListener("submit", atualizarProduto);
+        document.getElementById("form-apagar").addEventListener("submit", apagarProduto);
+
+        // Análise
+        document.getElementById("btnMedia").addEventListener("click", () => getAnalise("/produtos/analise/media-precos"));
+        document.getElementById("btnMaior").addEventListener("click", () => getAnalise("/produtos/analise/maior-preco"));
+        document.getElementById("btnMenor").addEventListener("click", () => getAnalise("/produtos/analise/menor-preco"));
+        document.getElementById("btnAcima").addEventListener("click", () => getAnalise("/produtos/analise/acima-media"));
+        document.getElementById("btnAbaixo").addEventListener("click", () => getAnalise("/produtos/analise/abaixo-media"));
+
+        // Carrega a lista inicial ao abrir a página
+        carregarProdutos();
+    </script>
+</body>
+</html>
